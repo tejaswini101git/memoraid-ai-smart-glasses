@@ -2,7 +2,7 @@
 
 The MEMORAID smart assistive system is built using the following hardware components:
 
-![Hardware Setup](hardware_setup.jpg)
+![Hardware Setup](memoraid_prototype.jpg)
 
 ## Core Components
 
