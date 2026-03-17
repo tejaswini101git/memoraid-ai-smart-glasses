@@ -1,6 +1,6 @@
 # MEMORAID: AI Smart Glasses for Dementia Assistance
 
-![Prototype](images/memoraid_prototype.jpg)
+
 
 ![Patent](https://img.shields.io/badge/Patent-Published%20(India)-brightgreen)
 ![AI](https://img.shields.io/badge/AI-Computer%20Vision-blue)
