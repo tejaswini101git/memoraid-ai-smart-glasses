@@ -114,7 +114,7 @@ Patent Published – Awaiting Examination
 
 ![Patent Publication](images/patent_publication.jpg)
 
-[View Full Patent Document](patent/memoraid patent.pdf)
+[View Full Patent Document](patent/memoraid_patentpdf.pdf)
 
 ---
 
