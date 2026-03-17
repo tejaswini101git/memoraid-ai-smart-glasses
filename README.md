@@ -38,7 +38,7 @@ MEMORAID addresses this problem by embedding an AI-powered assistive system dire
 
 ## System Workflow
 
-![Workflow Diagram](images/workflow_diagram.jpg)
+![Workflow Diagram](images/workflow_diagramm.jpg)
 
 The system follows a sequential pipeline:
 
