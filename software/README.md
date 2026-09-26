@@ -1,220 +1,52 @@
 # MEMORAID Software
 
-This directory contains the software reference implementation for **MEMORAID**, an AI-assisted smart wearable concept designed to support people with dementia through face detection, contextual audio feedback, and caregiver notifications.
+> Reference software implementation for **MEMORAID — AI Smart Glasses for Dementia Assistance**
 
-> **Implementation note**
->
-> The original prototype software is not available as a complete historical codebase. The Python and ESP32-CAM modules in this directory are therefore a **reconstructed/reference implementation** created to demonstrate the intended software architecture and provide a reproducible development baseline.
->
-> They should not be interpreted as the exact software that was used in the original physical prototype.
+MEMORAID is an AI-assisted wearable concept designed to support people with dementia through camera-based face detection, contextual audio feedback, and caregiver notifications.
+
+---
+
+## ⚠️ Implementation Note
+
+The original prototype software is not available as a complete historical codebase.
+
+The software in this directory is a **reconstructed/reference implementation** based on the documented MEMORAID system architecture. It is intended for reproducible development, testing, and demonstration and should not be interpreted as the exact software used in the original physical prototype.
 
 ---
 
 ## System Architecture
 
 ```text
-                    ┌─────────────────────┐
-                    │     OV2640 Camera   │
-                    └──────────┬──────────┘
-                               │
-                               ▼
-                    ┌─────────────────────┐
-                    │    ESP32-CAM        │
-                    │  Image Acquisition  │
-                    └──────────┬──────────┘
-                               │
-                               ▼
-                    ┌─────────────────────┐
-                    │  Face Detection     │
-                    │  OpenCV Reference   │
-                    └──────────┬──────────┘
-                               │
-                    ┌──────────┴──────────┐
-                    ▼                     ▼
-          ┌─────────────────┐   ┌──────────────────┐
-          │ Audio Feedback  │   │ Caregiver Alert  │
-          │    pyttsx3      │   │ Alert Interface  │
-          └────────┬────────┘   └────────┬─────────┘
-                   │                     │
-                   ▼                     ▼
-          Audio output layer       Notification layer
-#Software Components
-esp32_cam/
+                    MEMORAID SOFTWARE PIPELINE
 
-Contains the ESP32-CAM reference firmware.
+                         OV2640 Camera
+                              │
+                              ▼
+                         ESP32-CAM
+                              │
+                              ▼
+                      Image Acquisition
+                              │
+                              ▼
+                       Face Detection
+                          OpenCV
+                              │
+                 ┌────────────┴────────────┐
+                 │                         │
+                 ▼                         ▼
+          Audio Feedback            Caregiver Alert
+             pyttsx3                  Interface
+                 │                         │
+                 ▼                         ▼
+           Audio Output              Notification
+              Layer                     Layer
+```
 
-memoraid_camera.ino provides:
+---
 
-AI Thinker ESP32-CAM configuration
-OV2640 camera initialization
-Wi-Fi connectivity
-JPEG image capture
-HTTP endpoints for camera access
-Basic device status endpoint
+## Project Structure
 
-The firmware is intended as the camera acquisition layer of the system.
-
-face_recognition/
-
-Contains the local computer-vision reference pipeline.
-
-recognizer.py
-
-Provides the FaceRecognitionSystem interface.
-
-The current local implementation uses OpenCV's Haar Cascade detector to:
-
-load the face detector
-read images
-detect faces
-return detected face bounding boxes
-
-The current implementation is face detection, not biometric identity recognition.
-
-run_recognition.py
-
-Connects the face-detection module with the audio and caregiver layers.
-
-The pipeline can process an image and generate a structured result when a face is detected.
-
-audio/
-audio_feedback.py
-
-Provides the software audio-feedback layer using pyttsx3.
-
-The interface includes responses for events such as:
-
-startup
-person detected
-unknown person
-no person detected
-
-In the local reference implementation, audio is produced through the computer's audio system. The physical prototype's amplifier and bone-conduction speaker represent the corresponding hardware output layer.
-
-caregiver/
-caregiver_alert.py
-
-Provides a caregiver-notification interface.
-
-The current reference implementation:
-
-creates structured alert data
-records the event type
-records a timestamp
-optionally records a supplied confidence value
-prints the alert for local testing
-
-It does not claim to be connected to a production messaging service.
-
-Local Test Environment
-
-The reference pipeline was tested locally using:
-
-Python 3.12
-OpenCV 4.13.0
-NumPy
-pyttsx3
-Flask
-Requests
-Windows
-
-The dependency versions are listed in:
-
-requirements.txt
-Verified Local Tests
-
-The current reference implementation has been tested with a sample image.
-
-Face Detection
-
-Input image:
-
-test_face.jpg
-
-Observed result:
-
-Faces detected: 1
-Boxes: [[43, 67, 88, 88]]
-
-A detection-result image was also generated with the detected face highlighted by a bounding box.
-
-Pipeline Test
-
-The image was passed through the reference recognition pipeline and produced:
-
-MEMORAID: Face detected is nearby.
-
-The current fallback returns a detection result rather than a verified identity.
-
-Caregiver Alert Test
-
-The caregiver interface successfully generated a structured event containing:
-
-Event: Unknown person detected
-Confidence: 87.0%
-
-The confidence value in this standalone test was manually supplied and is not a measured model confidence.
-
-#Current Implementation Status
-Component	Status
-ESP32-CAM reference firmware	Implemented
-OV2640 camera initialization	Implemented
-Local face detection	Implemented
-Image processing pipeline	Implemented
-Audio feedback interface	Implemented
-Caregiver alert interface	Implemented
-Local end-to-end software test	Verified
-Biometric identity recognition	Not implemented in current fallback
-Production caregiver messaging	Not implemented
-Physical hardware integration test	Requires prototype hardware
-Edge-device ML deployment	Future integration
-Running the Local Reference Pipeline
-
-Create and activate a Python virtual environment:
-
-py -3.12 -m venv .venv
-.\.venv\Scripts\Activate.ps1
-
-Install dependencies:
-
-pip install -r requirements.txt
-
-Run the face-detection module:
-
-cd face_recognition
-python recognizer.py
-
-Run the recognition pipeline:
-
-python run_recognition.py
-
-To process an image from Python:
-
-from run_recognition import MemoraidRecognitionPipeline
-
-pipeline = MemoraidRecognitionPipeline()
-
-result = pipeline.process_image(
-    r"C:\path\to\image.jpg"
-)
-
-print(result)
-Future Development
-
-The reference implementation provides a baseline for further development.
-
-Potential next steps include:
-
-Replace the Haar Cascade fallback with a dedicated face-recognition model.
-Add reference-face enrollment and identity matching.
-Evaluate recognition accuracy using a documented dataset.
-Deploy inference closer to the ESP32-CAM edge.
-Connect the physical audio amplifier and bone-conduction speaker.
-Add a real caregiver notification service.
-Add event logging and timestamped incident history.
-Evaluate latency, false positives, and false negatives.
-Optimize the pipeline for embedded-device constraints.
-Repository Structure
+```text
 software/
 ├── audio/
 │   └── audio_feedback.py
@@ -227,20 +59,267 @@ software/
 │
 ├── face_recognition/
 │   ├── recognizer.py
-│   ├── run_recognition.py
-│   └── test_face.jpg
+│   └── run_recognition.py
 │
 ├── app.py
 ├── requirements.txt
 └── README.md
-Development Note
+```
 
-This software directory is intended to make the MEMORAID architecture understandable, testable, and reproducible while clearly separating the reconstructed reference implementation from the original physical prototype.
+---
 
+## Components
 
-Then click **Commit changes**.
+### 📷 ESP32-CAM
 
-Use this commit message:
+**File:** `esp32_cam/memoraid_camera.ino`
+
+Reference firmware for the camera acquisition layer.
+
+**Features:**
+
+- AI Thinker ESP32-CAM configuration
+- OV2640 camera initialization
+- Wi-Fi connectivity
+- JPEG image capture
+- HTTP capture endpoint
+- Device status endpoint
+
+The ESP32-CAM represents the image acquisition layer of the MEMORAID system.
+
+---
+
+### 👤 Face Detection
+
+**File:** `face_recognition/recognizer.py`
+
+The current local reference implementation uses OpenCV's Haar Cascade detector.
+
+**Capabilities:**
+
+- Image loading
+- Face detection
+- Face bounding-box detection
+- Reusable face-processing interface
+
+> The current implementation performs **face detection only**. It does not claim to perform biometric identity recognition.
+
+---
+
+### 🔄 Recognition Pipeline
+
+**File:** `face_recognition/run_recognition.py`
+
+Connects the computer-vision module with the audio and caregiver layers.
+
+The pipeline is designed to:
+
+1. Load an input image
+2. Detect a face
+3. Generate a system response
+4. Trigger the appropriate software output layer
+
+---
+
+### 🔊 Audio Feedback
+
+**File:** `audio/audio_feedback.py`
+
+Provides the software audio-feedback interface using `pyttsx3`.
+
+**Supported events:**
+
+- System startup
+- Person detected
+- Unknown person
+- No person detected
+
+For local testing, audio is generated through the computer's audio system.
+
+In the physical prototype, this software layer corresponds to the audio amplifier and bone-conduction speaker output.
+
+---
+
+### 🚨 Caregiver Alert
+
+**File:** `caregiver/caregiver_alert.py`
+
+Provides a structured caregiver-notification interface.
+
+The current implementation can:
+
+- Create alert events
+- Record timestamps
+- Include an optional confidence value
+- Print structured alerts for testing
+
+The current implementation does **not** connect to a production messaging service.
+
+---
+
+## Requirements
+
+The reference implementation was tested locally using:
+
+- Python 3.12
+- Windows
+- OpenCV 4.13.0
+- NumPy
+- pyttsx3
+- Flask
+- Requests
+
+Install dependencies:
+
+```powershell
+pip install -r requirements.txt
+```
+
+---
+
+## Running the Face Detection Module
+
+Navigate to:
 
 ```text
-Document MEMORAID software architecture and tests
+software/face_recognition
+```
+
+Then run:
+
+```powershell
+python recognizer.py
+```
+
+Expected output:
+
+```text
+MEMORAID face detection module initialized.
+```
+
+---
+
+## Running the Recognition Pipeline
+
+From the `face_recognition` directory:
+
+```powershell
+python run_recognition.py
+```
+
+The pipeline can also process an image directly:
+
+```python
+from run_recognition import MemoraidRecognitionPipeline
+
+pipeline = MemoraidRecognitionPipeline()
+
+result = pipeline.process_image(
+    r"C:\path\to\image.jpg"
+)
+
+print(result)
+```
+
+---
+
+## Local Verification
+
+A sample image was processed using the OpenCV face detector.
+
+### Face Detection Result
+
+```text
+Faces detected: 1
+Boxes: [[43, 67, 88, 88]]
+```
+
+A separate output image was generated with a bounding box around the detected face.
+
+### Pipeline Result
+
+The reference pipeline produced:
+
+```text
+MEMORAID: Face detected is nearby.
+```
+
+This verifies the local image-processing path from:
+
+```text
+Input Image
+     ↓
+OpenCV Face Detection
+     ↓
+MEMORAID Pipeline
+     ↓
+System Response
+```
+
+---
+
+## Caregiver Alert Verification
+
+The caregiver alert interface was tested independently.
+
+Example output:
+
+```text
+MEMORAID CAREGIVER ALERT
+To: Caregiver
+Event: Unknown person detected
+Confidence: 87.0%
+```
+
+The resulting alert contains structured information including:
+
+```text
+Recipient
+Event
+Timestamp
+Confidence
+```
+
+> The confidence value in this standalone interface test was manually supplied for interface testing. It is not a measured model confidence.
+
+---
+
+## Implementation Status
+
+| Component | Status |
+|---|---|
+| ESP32-CAM reference firmware | ✅ Implemented |
+| OV2640 camera initialization | ✅ Implemented |
+| Local face detection | ✅ Implemented |
+| Image-processing pipeline | ✅ Implemented |
+| Audio feedback interface | ✅ Implemented |
+| Caregiver alert interface | ✅ Implemented |
+| Local software testing | ✅ Verified |
+| Biometric identity recognition | 🔧 Future integration |
+| Reference-face enrollment | 🔧 Future integration |
+| Production caregiver notifications | 🔧 Future integration |
+| Physical hardware integration testing | 🔧 Requires prototype hardware |
+| Edge-device ML deployment | 🔧 Future integration |
+
+---
+
+## Future Development
+
+- Integrate a dedicated face-recognition model
+- Add reference-face enrollment
+- Implement identity matching
+- Evaluate recognition accuracy
+- Measure false positives and false negatives
+- Integrate physical audio hardware
+- Connect a real caregiver notification service
+- Add event logging
+- Explore edge-device inference
+- Optimize inference for embedded hardware
+
+---
+
+## Development Note
+
+This software directory provides a reproducible reference implementation of the MEMORAID software architecture while maintaining a clear distinction between the reconstructed software and the original physical prototype.
+
+The implementation can be extended as additional original design information, datasets, hardware interfaces, and deployment requirements become available.
