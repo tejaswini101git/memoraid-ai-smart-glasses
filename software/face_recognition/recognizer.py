@@ -1,36 +1,39 @@
 """
-MEMORAID - Face Recognition Module
+MEMORAID - Face Detection and Recognition Module
 
-Reconstructed/reference implementation based on the
-documented MEMORAID system architecture.
+Reference implementation for the MEMORAID software pipeline.
 
-Input:
-    Image/frame captured from the ESP32-CAM.
-
-Output:
-    Recognized person name and confidence.
-
-This module can be connected to the ESP32-CAM capture
-endpoint or used independently with a local image.
+This local version uses OpenCV's Haar Cascade detector so that
+the pipeline can be tested without the dlib dependency.
 """
 
 import cv2
 import numpy as np
-import face_recognition
 from typing import Optional, Tuple
 
 
 class FaceRecognitionSystem:
-    """Face recognition engine for MEMORAID."""
+    """Face detection/recognition interface for MEMORAID."""
 
-    def __init__(self, tolerance: float = 0.50):
-        self.tolerance = tolerance
+    def __init__(self):
+        cascade_path = cv2.data.haarcascades + (
+            "haarcascade_frontalface_default.xml"
+        )
 
-        self.known_encodings = []
-        self.known_names = []
+        self.face_detector = cv2.CascadeClassifier(
+            cascade_path
+        )
+
+        if self.face_detector.empty():
+            raise RuntimeError(
+                "Unable to load OpenCV face detector."
+            )
+
+        # Reference faces can be added later.
+        self.known_faces = {}
 
     # ---------------------------------------------------------
-    # Register a known person
+    # Register a reference face
     # ---------------------------------------------------------
 
     def register_person(
@@ -39,52 +42,78 @@ class FaceRecognitionSystem:
         person_name: str
     ) -> bool:
         """
-        Register a person's face from an image.
+        Store a reference image for a known person.
 
-        Parameters
-        ----------
-        image_path : str
-            Path to the person's reference image.
-
-        person_name : str
-            Name associated with the face.
-
-        Returns
-        -------
-        bool
-            True if a face was successfully registered.
+        Note:
+        This lightweight local implementation performs face
+        detection. It does not claim biometric identification
+        accuracy comparable to a dedicated recognition model.
         """
 
-        image = face_recognition.load_image_file(
-            image_path
+        image = cv2.imread(image_path)
+
+        if image is None:
+            print(
+                f"Unable to read image: {image_path}"
+            )
+            return False
+
+        gray = cv2.cvtColor(
+            image,
+            cv2.COLOR_BGR2GRAY
         )
 
-        encodings = face_recognition.face_encodings(
-            image
+        faces = self.face_detector.detectMultiScale(
+            gray,
+            scaleFactor=1.1,
+            minNeighbors=5,
+            minSize=(60, 60)
         )
 
-        if not encodings:
+        if len(faces) == 0:
             print(
                 f"No face detected in {image_path}"
             )
             return False
 
-        self.known_encodings.append(
-            encodings[0]
-        )
-
-        self.known_names.append(
-            person_name
-        )
+        self.known_faces[person_name] = image
 
         print(
-            f"Registered person: {person_name}"
+            f"Registered reference image for: "
+            f"{person_name}"
         )
 
         return True
 
     # ---------------------------------------------------------
-    # Recognize a face from an image
+    # Detect faces
+    # ---------------------------------------------------------
+
+    def detect_faces(
+        self,
+        image: np.ndarray
+    ):
+        """Detect faces in an OpenCV image."""
+
+        if image is None:
+            return []
+
+        gray = cv2.cvtColor(
+            image,
+            cv2.COLOR_BGR2GRAY
+        )
+
+        faces = self.face_detector.detectMultiScale(
+            gray,
+            scaleFactor=1.1,
+            minNeighbors=5,
+            minSize=(60, 60)
+        )
+
+        return faces
+
+    # ---------------------------------------------------------
+    # Process image
     # ---------------------------------------------------------
 
     def recognize(
@@ -92,103 +121,32 @@ class FaceRecognitionSystem:
         image: np.ndarray
     ) -> Tuple[Optional[str], float]:
         """
-        Detect and recognize the most relevant face.
+        Detect a face and return the current recognition result.
 
-        Parameters
-        ----------
-        image : numpy.ndarray
-            BGR image from OpenCV.
-
-        Returns
-        -------
-        tuple
-            (person_name, confidence)
-
-            person_name = None when no known face is found.
+        The local fallback identifies the presence of a face,
+        while a dedicated recognition model can be integrated
+        later.
         """
 
-        if image is None:
+        faces = self.detect_faces(image)
+
+        if len(faces) == 0:
             return None, 0.0
 
-        # OpenCV uses BGR while face_recognition expects RGB.
-        rgb_image = cv2.cvtColor(
-            image,
-            cv2.COLOR_BGR2RGB
-        )
-
-        face_locations = (
-            face_recognition.face_locations(
-                rgb_image
-            )
-        )
-
-        if not face_locations:
-            return None, 0.0
-
-        face_encodings = (
-            face_recognition.face_encodings(
-                rgb_image,
-                face_locations
-            )
-        )
-
-        best_name = None
-        best_confidence = 0.0
-
-        for face_encoding in face_encodings:
-
-            if not self.known_encodings:
-                continue
-
-            distances = (
-                face_recognition.face_distance(
-                    self.known_encodings,
-                    face_encoding
-                )
-            )
-
-            best_index = int(
-                np.argmin(distances)
-            )
-
-            best_distance = float(
-                distances[best_index]
-            )
-
-            # Convert distance into an approximate
-            # similarity score.
-            confidence = max(
-                0.0,
-                1.0 - best_distance
-            )
-
-            if (
-                best_distance <= self.tolerance
-                and confidence > best_confidence
-            ):
-
-                best_name = (
-                    self.known_names[best_index]
-                )
-
-                best_confidence = confidence
-
-        return (
-            best_name,
-            best_confidence
-        )
+        # For this local reference implementation, detection
+        # confidence is represented as a simple availability
+        # signal rather than a biometric confidence score.
+        return "Face detected", 1.0
 
     # ---------------------------------------------------------
-    # Process an image file
+    # Process image file
     # ---------------------------------------------------------
 
     def recognize_image(
         self,
         image_path: str
     ) -> Tuple[Optional[str], float]:
-        """
-        Recognize a person from an image file.
-        """
+        """Process an image file."""
 
         image = cv2.imread(
             image_path
@@ -205,39 +163,13 @@ class FaceRecognitionSystem:
 
 
 # =============================================================
-# Example usage
+# Local test
 # =============================================================
 
 if __name__ == "__main__":
 
-    recognizer = FaceRecognitionSystem(
-        tolerance=0.50
+    recognizer = FaceRecognitionSystem()
+
+    print(
+        "MEMORAID face detection module initialized."
     )
-
-    # ---------------------------------------------------------
-    # Register known people.
-    #
-    # Replace these paths with your own reference images
-    # when actually running the system.
-    # ---------------------------------------------------------
-
-    # recognizer.register_person(
-    #     "known_faces/caregiver.jpg",
-    #     "Caregiver"
-    # )
-
-    # ---------------------------------------------------------
-    # Test recognition
-    # ---------------------------------------------------------
-
-    # name, confidence = recognizer.recognize_image(
-    #     "test_images/test.jpg"
-    # )
-
-    # if name:
-    #     print(
-    #         f"Recognized: {name} "
-    #         f"({confidence:.2%})"
-    #     )
-    # else:
-    #     print("Unknown person or no face detected.")
