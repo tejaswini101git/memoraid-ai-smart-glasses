@@ -4,8 +4,7 @@ This directory contains the software reference implementation for the MEMORAID s
 
 The software demonstrates the pipeline from image acquisition and face detection to audio feedback and caregiver alert generation.
 
-> **Note:** The current implementation is a reconstructed/reference implementation for demonstrating the MEMORAID software pipeline. The OpenCV module currently performs face detection; a dedicated recognition model can be integrated later.
-
+>
 ---
 
 ## Software Pipeline
