@@ -1,8 +1,7 @@
 """
 MEMORAID - Caregiver Alert Module
 
-Reconstructed/reference implementation based on the
-documented MEMORAID system architecture.
+
 
 Purpose:
     Provide a software interface for sending caregiver
