@@ -5,7 +5,7 @@
 ![Patent](https://img.shields.io/badge/Patent-Published%20(India)-brightgreen)
 ![AI](https://img.shields.io/badge/AI-Computer%20Vision-blue)
 ![System](https://img.shields.io/badge/System-Embedded%20IoT-orange)
-![License](https://img.shields.io/badge/License-Apache%202.0-lightgrey)
+
 
 ---
 
