@@ -10,8 +10,7 @@ Connects:
         ↓
     Audio feedback / caregiver alert
 
-Reconstructed/reference implementation based on the
-documented MEMORAID system architecture.
+
 """
 
 import cv2
