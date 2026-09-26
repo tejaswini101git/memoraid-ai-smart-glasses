@@ -1,8 +1,7 @@
 """
 MEMORAID - Audio Feedback Module
 
-Reconstructed/reference implementation based on the
-documented MEMORAID hardware architecture.
+
 
 Hardware output:
     Audio amplifier -> Bone conduction speaker
