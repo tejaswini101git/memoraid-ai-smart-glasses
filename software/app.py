@@ -1,8 +1,7 @@
 """
 MEMORAID - Main Application
 
-Reconstructed/reference implementation based on the
-documented MEMORAID architecture.
+
 
 System flow:
 
