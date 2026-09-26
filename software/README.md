@@ -38,7 +38,7 @@ This directory contains the software reference implementation for **MEMORAID**, 
                    │                     │
                    ▼                     ▼
           Audio output layer       Notification layer
-Software Components
+#Software Components
 esp32_cam/
 
 Contains the ESP32-CAM reference firmware.
@@ -155,7 +155,7 @@ Confidence: 87.0%
 
 The confidence value in this standalone test was manually supplied and is not a measured model confidence.
 
-Current Implementation Status
+#Current Implementation Status
 Component	Status
 ESP32-CAM reference firmware	Implemented
 OV2640 camera initialization	Implemented
