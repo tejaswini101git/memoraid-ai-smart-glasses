@@ -56,11 +56,7 @@ The `audio/` module provides the software interface for spoken feedback using `p
 
 In the physical prototype, the audio output is intended to connect to the audio amplifier and bone-conduction speaker.
 
-### Audio Test
 
-![Audio Feedback](../images/audio.jpeg)
-
----
 
 ## Caregiver Alert
 
