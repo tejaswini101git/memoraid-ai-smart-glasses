@@ -17,6 +17,12 @@ documented MEMORAID system architecture.
 import cv2
 
 from recognizer import FaceRecognitionSystem
+import sys
+from pathlib import Path
+
+SOFTWARE_DIR = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(SOFTWARE_DIR))
+
 from audio.audio_feedback import AudioFeedback
 from caregiver.caregiver_alert import CaregiverAlert
 
