@@ -31,10 +31,7 @@ class MemoraidRecognitionPipeline:
     """Main recognition and response pipeline."""
 
     def __init__(self):
-        self.recognizer = FaceRecognitionSystem(
-            tolerance=0.50
-        )
-
+        self.recognizer = FaceRecognitionSystem()
         self.audio = AudioFeedback()
 
         self.caregiver = CaregiverAlert(
