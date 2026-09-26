@@ -16,7 +16,7 @@ documented MEMORAID system architecture.
 
 import cv2
 
-from face_recognition import FaceRecognitionSystem
+from recognizer import FaceRecognitionSystem
 from audio.audio_feedback import AudioFeedback
 from caregiver.caregiver_alert import CaregiverAlert
 
