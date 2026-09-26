@@ -1,8 +1,7 @@
 /*
  * MEMORAID - ESP32-CAM Camera Module
  *
- * Reconstructed/reference implementation based on the
- * documented MEMORAID hardware architecture.
+
  *
  * Hardware:
  * - AI Thinker ESP32-CAM
