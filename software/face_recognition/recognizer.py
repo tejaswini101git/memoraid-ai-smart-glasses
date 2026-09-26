@@ -1,7 +1,7 @@
 """
 MEMORAID - Face Detection and Recognition Module
 
-Reference implementation for the MEMORAID software pipeline.
+
 
 This local version uses OpenCV's Haar Cascade detector so that
 the pipeline can be tested without the dlib dependency.
